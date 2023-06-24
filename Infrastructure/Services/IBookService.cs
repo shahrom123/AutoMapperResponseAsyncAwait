@@ -1,5 +1,6 @@
 using Domain.Dtos;
 using Domain.Entities;
+using Domain.Filters;
 using Domain.Wrapper;
 
 namespace Infrastructure.Services;
@@ -12,5 +13,5 @@ public interface IBookService
     Task<Response<AddBookDto>> UpdateBook(AddBookDto book);
     Task<Response<string>> DeleteBook(string id);  
     Task<Response<List<GetAllBooksDto>>> GetAllBooksAuthorPublisher(); 
-    Task<Response<List<GetAllBooksDto>>> GetAllBooks(); 
+    Task<PagedResponse<List<GetAllBooksDto>>> GetAllBooks(GetFilterBook filter);  
 }

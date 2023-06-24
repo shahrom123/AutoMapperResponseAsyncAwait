@@ -8,7 +8,7 @@ public class PaginationFilter
     public PaginationFilter()
     {
         PageNumber = 1;
-        PageSize = 10;
+        PageSize = 10; 
     }
 
     public PaginationFilter(int pageNumber, int pageSize)

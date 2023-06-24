@@ -1,6 +1,7 @@
 using System.Net;
 using Domain.Dtos;
 using Domain.Entities;
+using Domain.Filters;
 using Domain.Wrapper;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -55,8 +56,8 @@ public class BookController : ControllerBase
         return await _bookService.GetAllBooksAuthorPublisher(); 
     }
     [HttpGet("GetAllBooks")] 
-    public async Task<Response<List<GetAllBooksDto>>> GetAllBooks()
-    {
-        return await _bookService.GetAllBooks();    
+    public async Task<Response<List<GetAllBooksDto>>> GetAllBooks([FromQuery]GetFilterBook filter) 
+    { 
+        return await _bookService.GetAllBooks(filter);      
     }
 }

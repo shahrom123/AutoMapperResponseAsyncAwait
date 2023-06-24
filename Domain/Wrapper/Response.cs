@@ -21,7 +21,7 @@ public class Response<T>
         Errors = errors;
     } 
     
-    public Response(HttpStatusCode statusCode,string errors)
+    public Response(HttpStatusCode statusCode,string errors)    
     {
         StatusCode = statusCode;
         Errors = new List<string>() { errors };

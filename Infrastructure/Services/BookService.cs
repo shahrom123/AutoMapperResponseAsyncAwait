@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using Domain.Dtos;
 using Domain.Entities;
+using Domain.Filters;
 using Domain.Wrapper;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -103,6 +104,7 @@ public class BookService:IBookService
 
     public async Task<Response<List<GetAllBooksDto>>> GetAllBooksAuthorPublisher()
     {
+     
         try
         {
             var book =await _context.Books.Select(b => new GetAllBooksDto()
@@ -140,13 +142,20 @@ public class BookService:IBookService
         }
     }
 
-    public async Task<Response<List<GetAllBooksDto>>> GetAllBooks()
+    public async Task<PagedResponse<List<GetAllBooksDto>>> GetAllBooks(GetFilterBook filter)
     {
+       
+        var validFilters = new PaginationFilter(filter.PageNumber, filter.PageSize);
+        var books =  _context.Books.AsQueryable();  
+        if (string.IsNullOrEmpty(filter.Title) == false)
+        {
+            books = books.Where(b => b.Title.ToLower().Contains(filter.Title.ToLower()));
+        }
         try
         {
-            var books =await _context.Books.ToListAsync();
-            var joined = (from b in _context.Books
-                select new GetAllBooksDto()
+            var joined = await 
+                (from b in books 
+                select new GetAllBooksDto()  
                 {
                     Isbn = b.Isbn,
                     PublisherName = b.Publisher.Name,
@@ -157,14 +166,17 @@ public class BookService:IBookService
                     YtdSales = b.YtdSales,
                     Price = b.Price,
                     Type = b.Type,
-                    Authors = _mapper.Map<List<GetAuthorDto>>(b.BookAuthors.Select(x => x.Author).ToList()
+                    Authors =_mapper.Map<List<GetAuthorDto>>(b.BookAuthors.Select(x => x.Author).ToList()
                     )  
-                }).OrderBy(p=>p.PublisherDate).ToList(); 
-            return new Response<List<GetAllBooksDto>>(joined); 
+                }).Skip((validFilters.PageNumber - 1) * validFilters.PageSize)
+                .Take(validFilters.PageSize)
+                .OrderBy(p=>p.PublisherDate).ToListAsync();
+            var totalRecords = books.Count();  
+            return new PagedResponse<List<GetAllBooksDto>>(joined, filter.PageNumber,filter.PageSize, totalRecords) ; 
         }
         catch (Exception ex)
         {
-            return new Response<List<GetAllBooksDto>>(HttpStatusCode.InternalServerError, new List<string>() { ex.Message }); 
+            return new PagedResponse<List<GetAllBooksDto>>(HttpStatusCode.InternalServerError, new List<string>() { ex.Message }); 
         }
     }
 
