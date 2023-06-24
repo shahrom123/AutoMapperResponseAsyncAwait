@@ -1,4 +1,5 @@
 using Domain.Dtos;
+using Domain.Wrapper;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,42 +16,42 @@ public class AuthorController:ControllerBase
     }
 
     [HttpGet("GetAuthors")]
-    public List<GetAuthorDto> GetAuthors()
+    public async Task<Response<List<GetAuthorDto>>> GetAuthors()
     {
-        return _authorService.GetAuthor(); 
+        return await _authorService.GetAuthors();  
     }
     [HttpGet("GetAuthorById")]
-    public GetAuthorDto GetAuthorById(int id)
+    public async Task<Response<GetAuthorDto>> GetAuthorById(int id)
     {
-        return _authorService.GetAuthorById(id); 
+        return await _authorService.GetAuthorById(id);  
     }
     
     [HttpPost("AddAuthor")]
-    public AddAuthorDto AddAuthor(AddAuthorDto author)
+    public async Task<Response<AddAuthorDto>> AddAuthor(AddAuthorDto author) 
     {
-        return _authorService.AddAuthor(author);
+        return await _authorService.AddAuthor(author); 
     }
 
     [HttpPut("UpdateAuthor")]
-    public AddAuthorDto UpdateAuthor(AddAuthorDto model)
+    public async Task<Response<AddAuthorDto>> UpdateAuthor(AddAuthorDto model)
     {
-        return _authorService.UpdateAuthor(model); 
+        return await  _authorService.UpdateAuthor(model); 
     }
     
     [HttpDelete("DeleteAuthor")]
-    public bool DeleteAuthor(int id)
+    public async Task<Response<string>> DeleteAuthor(int id)
     {
-        return _authorService.DeleteAuthor(id);  
+        return await _authorService.DeleteAuthor(id);   
     }
     [HttpGet("GetAuthorsWithBooks")] 
     public IActionResult GetAuthorsWithBooks() 
     {
-        return Ok(_authorService.GetAllAuthorsWithBooksDto()); 
+        return Ok(_authorService.GetAllAuthorsWithBooks()); 
     }
 
-    [HttpGet("GetListAuthorWithNumberOfBooksDtos")] 
-    public IActionResult GetListAuthorWithNumberOfBooksDtos() 
+    [HttpGet("GetListAuthorWithNumberOfBooks")] 
+    public IActionResult GetListAuthorWithNumberOfBooks() 
     {
-        return Ok(_authorService.GetListAuthorWithNumberOfBooksDtos()); 
+        return Ok(_authorService.GetListAuthorWithNumberOfBooks()); 
     }
 }

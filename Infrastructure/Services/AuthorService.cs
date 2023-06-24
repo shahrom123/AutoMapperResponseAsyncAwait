@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Dtos;
 using Domain.Entities;
+using Domain.Wrapper;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,54 +18,57 @@ public class AuthorService : IAuthorService
         _mapper = mapper;
     }
 
-    public List<GetAuthorDto> GetAuthor()
+    public async Task<Response<List<GetAuthorDto>>> GetAuthors() 
     {
-        var authors = _context.Authors.ToList();
-        return _mapper.Map<List<GetAuthorDto>>(authors);
+        var authors =await _context.Authors.ToListAsync();
+        var map = _mapper.Map<List<GetAuthorDto>>(authors);
+        return new Response<List<GetAuthorDto>>(map); 
     }
 
-    public GetAuthorDto GetAuthorById(int id)
+    public async Task<Response<GetAuthorDto>> GetAuthorById(int id)
     {
-        var author = _context.Authors.Find(id);
-        return _mapper.Map<GetAuthorDto>(author);
+        var author =await _context.Authors.FindAsync(id);
+        var map = _mapper.Map<GetAuthorDto>(author);
+        return new Response<GetAuthorDto>(map);
     }
 
-    public AddAuthorDto AddAuthor(AddAuthorDto model)
+    public async Task<Response<AddAuthorDto>> AddAuthor(AddAuthorDto model)
     {
         var author = _mapper.Map<Author>(model);
         _context.Authors.Add(author);
         author.Id = model.Id;
-        _context.SaveChanges();
-        return model;
+        var  result =await _context.SaveChangesAsync();
+        return new Response<AddAuthorDto>(model); 
     }
 
-    public AddAuthorDto UpdateAuthor(AddAuthorDto model)
+    public async Task<Response<AddAuthorDto>> UpdateAuthor(AddAuthorDto model)
     {
-        var author = _context.Authors.Find(model.Id);
+        var author = await _context.Authors.FindAsync(model.Id); 
         _mapper.Map(model, author);
         _context.Entry(author).State = EntityState.Modified;
-        _context.SaveChanges();
-        return model;
+        await _context.SaveChangesAsync();
+        var result = _mapper.Map<AddAuthorDto>(author);
+        return new Response<AddAuthorDto>(result);  
     }
 
-    public bool DeleteAuthor(int id)
+    public async Task<Response<string>> DeleteAuthor(int id)
     {
-        var author = _context.Authors.Find(id);
-        if (author == null) return false;
+        var author = await _context.Authors.FindAsync(id);
+        if (author == null) return new Response<string>("Author not found");
         _context.Authors.Remove(author);
-        var result = _context.SaveChanges();
-        return result == 1;
+        var result =await _context.SaveChangesAsync();
+        return new Response<string>("deleted successfully "); 
     }
 
-    public List<GetAllAuthorsWithBooksDto> GetAllAuthorsWithBooksDto()
+    public async Task<Response<List<GetAllAuthorsWithBooksDto>>> GetAllAuthorsWithBooks()
     {
-        var authors = _context.Authors.Select(a => new GetAllAuthorsWithBooksDto()
+        var authors =await _context.Authors.Select(a => new GetAllAuthorsWithBooksDto()
         {
             AuthorId = a.Id,
             AuthorFullName = string.Concat(a.LastName + " " + a.FirstName),
             Books = a.BookAuthors.Where(x => x.AuthorId == a.Id).Select(b => new BookBaseDto()
             { 
-                Isbn = b.Book.Isbn,
+                Isbn = b.Book.Isbn, 
                 Title = b.Book.Title,
                 PublisherId = b.Book.PublisherId,
                 Type = b.Book.Type,
@@ -75,17 +79,17 @@ public class AuthorService : IAuthorService
 
             }).ToList()
 
-        }).ToList();
-        return authors;
+        }).ToListAsync();
+        return new Response<List<GetAllAuthorsWithBooksDto>>(authors); 
     }
 
-    public List<GetListAuthorWithNumberOfBooksDto> GetListAuthorWithNumberOfBooksDtos()
+    public async Task<Response<List<GetListAuthorWithNumberOfBooksDto>>> GetListAuthorWithNumberOfBooks()  
     {
-        var authors = _context.Authors.Select(a => new GetListAuthorWithNumberOfBooksDto()
+        var authors =await _context.Authors.Select(a => new GetListAuthorWithNumberOfBooksDto()
         {
             FullName = string.Concat(a.LastName + " " + a.FirstName),
             CountOfBook = a.BookAuthors.Where(x => x.AuthorId == a.Id).Select(x => x.Book).ToList().Count 
-        }).ToList(); 
-        return authors;  
+        }).ToListAsync(); 
+        return new Response<List<GetListAuthorWithNumberOfBooksDto>>(authors);   
     }
 }

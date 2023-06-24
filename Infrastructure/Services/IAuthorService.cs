@@ -1,14 +1,20 @@
 using Domain.Dtos;
+using Domain.Wrapper;
 
 namespace Infrastructure.Services;
 
 public interface IAuthorService
 {
-    List<GetAuthorDto> GetAuthor();
-    GetAuthorDto GetAuthorById(int id);
-    AddAuthorDto AddAuthor(AddAuthorDto model);
-    AddAuthorDto UpdateAuthor(AddAuthorDto model);
-    bool DeleteAuthor(int id);
-    List<GetAllAuthorsWithBooksDto> GetAllAuthorsWithBooksDto();
-    List<GetListAuthorWithNumberOfBooksDto> GetListAuthorWithNumberOfBooksDtos();
+   Task<Response<List<GetAuthorDto>>> GetAuthors();   
+   Task<Response<GetAuthorDto>> GetAuthorById(int id);
+   Task<Response<AddAuthorDto>> AddAuthor(AddAuthorDto model); 
+   Task<Response<AddAuthorDto>> UpdateAuthor(AddAuthorDto model);
+   Task<Response<string>>  DeleteAuthor(int id);
+   Task<Response<List<GetAllAuthorsWithBooksDto>>> GetAllAuthorsWithBooks(); 
+   Task<Response<List<GetListAuthorWithNumberOfBooksDto>>> GetListAuthorWithNumberOfBooks();   
 }
+
+
+
+
+
